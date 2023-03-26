@@ -51,10 +51,12 @@ double **coordinates_cities(char * file_name)
 	}
 	
 	read = fscanf(fp, "NAME :%s \n", name);
-
+	
+	/*
 	if (read)
 		printf("name is: %s\n", name);
-	
+	*/
+
 	while ((read = fscanf(fp, "DIMENSION : %d \n", &dimensions)) == 0)
 	{
 		while (fgetc(fp) != '\n')
@@ -63,7 +65,7 @@ double **coordinates_cities(char * file_name)
 
 	if (read)
 	{
-		printf("Dimension: %d\n", dimensions);
+		//printf("Dimension: %d\n", dimensions);
 		coordinates = initialize_coordinates(dimensions);
 	}
 	else
@@ -104,7 +106,7 @@ double **coordinates_cities(char * file_name)
 		}
 	}
 
-	printf("successful reads: %d\n", successful_reads);
+	//printf("successful reads: %d\n", successful_reads);
 	
 	if (successful_reads != dimensions)
 	{	
@@ -113,7 +115,7 @@ double **coordinates_cities(char * file_name)
 		exit(EXIT_FAILURE);
 	}
 	
-	print_array_2d(coordinates, dimensions);
+	//print_array_2d(coordinates, dimensions);
 
 	fclose(fp);
 
