@@ -34,10 +34,6 @@ int *random_permutation(int size)
 	
 	for (int i = size - 1; i >= 1; i--)
 	{
-		gettimeofday(&timecheck, NULL);
-		time_current_micro_s = timecheck.tv_usec;
-		
-		srand((unsigned int) time_current_micro_s);
 		j = rand() % (i + 1);
 	
 		swap(&arr[i], &arr[j]);	
@@ -45,6 +41,17 @@ int *random_permutation(int size)
 
 	return arr;
 }
+
+void shuffle(int *arr, int size)
+{
+	int j;
+	for (int i = size - 1; i >= 1; i--)
+        {
+                j = rand() % (i + 1);
+                swap(&arr[i], &arr[j]);
+        }
+}
+
 
 void random_permutation_time_test(int size)
 {

@@ -10,3 +10,5 @@ void print_array(int *, int);
 // Swap two values
 void swap(int *, int *);
 
+// Random shuffle of the permutation
+void shuffle(int *arr, int size);
