@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
+#include <string.h>
 #include "create_distance_matrix.h"
 #include "random_permutation.h"
 #include "read_and_allocate_data.h"
@@ -11,9 +12,44 @@
 #include "random_search.h"
 #include "utils.h"
 
-int main(void)
+void slice(const char *str, char *result, size_t start, size_t end);
+
+
+int main(int argc, char *argv[])
 {
-	char *file_path = "gr137.tsp";
+
+	if (argc < 2)
+	{
+		printf("Daj argument byczku\n");
+		exit(1);
+	}
+	
+	char *file_path = argv[1];
+	
+	int string_length = strlen(file_path);
+	
+	char greedy_save[64];	
+	slice(file_path, greedy_save, 0, string_length - 4);
+	strcat(greedy_save, "_greedy.csv");
+	printf("%s\n", greedy_save);
+	
+	char steepest_save[64];
+	slice(file_path, steepest_save, 0, string_length - 4);
+	strcat(steepest_save, "_steepest.csv");
+	printf("%s\n", steepest_save);
+	
+	char random_search_save[64];
+	slice(file_path, random_search_save, 0, string_length - 4);
+	strcat(random_search_save, "_rs.csv");
+	printf("%s\n", random_search_save);
+	
+	char random_walk_save[64];	
+	slice(file_path, random_walk_save, 0, string_length - 4);
+	strcat(random_walk_save, "_rw.csv");
+	printf("%s\n", random_walk_save);
+	
+	printf("%s\n", steepest_save);	
+	
 	int i, size;
 	int iterations = 100, flag = 0;
 	int time_mili;
@@ -40,24 +76,30 @@ int main(void)
                 end_mili = (long) timecheck.tv_sec * 1000 + (long) timecheck.tv_usec / 1000;
 		time_mili = end_mili - start_mili;
 	
-		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, "gr137_greedy.csv", flag);
+		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, greedy_save, flag);
 
 		shuffle(solution, size);
 
 		steepest_local_search(distance_matrix_cities, solution, size);
-		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, "gr137_steepest.csv", flag);
+		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, steepest_save, flag);
 
 		shuffle(solution, size);
 
 		random_walk(distance_matrix_cities, solution, size, time_mili);
-		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, "gr137_random_walk.csv", flag);
+		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, random_walk_save, flag);
 
 		shuffle(solution, size);
 		
 		random_search(distance_matrix_cities, solution, size, time_mili);
-		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, "gr137_random_search.csv", flag);
+		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, random_search_save, flag);
 
 	}
 
 	return 0;
+}
+
+
+void slice(const char *str, char *result, size_t start, size_t end)
+{
+    strncpy(result, str + start, end - start);
 }
