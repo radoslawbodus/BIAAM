@@ -14,19 +14,19 @@ void print_array_here(int *arr, int size);
 
 int main(void)
 {
-	char *file_path = "a280.tsp";
+	char *file_path = "gr137.tsp";
 	
 	int *solution;
 
         double **coordinates_cities_array = coordinates_cities(file_path);
         
-	double **distance_matrix_cities = distance_matrix(coordinates_cities_array, 280);
+	double **distance_matrix_cities = distance_matrix(coordinates_cities_array, 137);
 
         //print_matrix(distance_matrix_cities, 532);
 		
-	solution = random_permutation(280);
+	solution = random_permutation(137);
 	
-	random_walk(distance_matrix_cities, solution, 280);
+	random_walk(distance_matrix_cities, solution, 137);
 	
 	
 	return 0;

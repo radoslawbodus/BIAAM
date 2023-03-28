@@ -12,23 +12,26 @@ void copy_solution(int *target, int *source, int size);
 void swap_here(int *a, int *b);
 double calculate_shortened_fitness(int *solution, int i, int j, double **distance_matrix, int size, double previous_fitness);
 void print_array_here(int *arr, int size);
+double calculate_fitness_edge_exchange(int *solution, double **distance_matrix, int size, int i, int j);
+void reverse_sub(int *start, int *end);
+
 
 int main(void)
 {
-	char *file_path = "a280.tsp";
+	char *file_path = "gr137.tsp";
 	
 	int *solution;
 
         double **coordinates_cities_array = coordinates_cities(file_path);
         
-	double **distance_matrix_cities = distance_matrix(coordinates_cities_array, 280);
+	double **distance_matrix_cities = distance_matrix(coordinates_cities_array, 137);
 	
         //print_matrix(distance_matrix_cities, 532);
-		
-	solution = random_permutation(280);
+	srand(time(NULL));	
+	solution = random_permutation(137);
 	
 	clock_t start = clock();
-	steepest_local_search(distance_matrix_cities, solution, 280);
+	steepest_local_search(distance_matrix_cities, solution, 137);
 	clock_t end = clock();
 
 	printf("It took %lf seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
@@ -48,7 +51,7 @@ void steepest_local_search(double **distance_matrix, int *solution, int size)
 	double previous_fitness = current_fitness;
 	double best_fitness = current_fitness;
 	int i, j;
-	
+	int type = 0;	
 	
 	gettimeofday(&timecheck, NULL);
         
@@ -75,15 +78,32 @@ void steepest_local_search(double **distance_matrix, int *solution, int size)
 					best_delta = current_delta;
 					best_i = i;
 					best_j = j;
+					type = 0;
 					//printf("Best delta: %lf\n", best_delta);
 					//printf("Best solution so far: %lf\n", fitness(solution, distance_matrix, size));
 				}
+				if ((current_delta = calculate_fitness_edge_exchange(solution, distance_matrix, size, i, j)) < best_delta)
+                                {
+                                        best_delta = current_delta;
+                                        best_i = i;
+                                        best_j = j;
+                                        type = 1;
+                                        //printf("Nice\n");
+                                        break;
+                                }
+
 			}
 		}
 		if (best_delta < 0)
-		{
-			swap_here(&solution[best_i], &solution[best_j]);
-		}
+                {
+                        if (type == 0)
+                                swap_here(&solution[best_i], &solution[best_j]);
+                        else if (type == 1)
+                                reverse_sub(&solution[best_i+1], &solution[best_j]);
+                        //printf("Best Fitness: %lf Best delta: %lf type: %d, (i: %d, j: %d)\n", fitness(solution, distance_matrix, size), best_delta, type, best_i, best_j);
+                        //print_array_here(solution, size);
+                }
+
 		else
 		{
 			break;
@@ -100,6 +120,40 @@ void steepest_local_search(double **distance_matrix, int *solution, int size)
 
 	return;
 }
+
+
+void reverse_sub(int *start, int *end)
+{
+        int i = 0;
+        double temp;
+        int middle = (end - start + 1) / 2;
+        //printf("Middle: %d  ", middle);
+        while (i < middle)
+        {
+                temp = *(start + i); 
+                *(start + i) = *(end - i);
+                *(end - i) = temp;
+                i++;
+        }
+}
+
+
+double calculate_fitness_edge_exchange(int *solution, double **distance_matrix, int size, int i, int j)
+{
+        if ((j - i == 1) || (i == 0 && j == size - 1))
+                return 0;
+
+        int jp1 = (j == size - 1 ? 0 : j + 1);
+        double difference_minus = 0, difference_plus = 0;
+
+        difference_minus += (distance_matrix[solution[i]][solution[i+1]] +
+                             distance_matrix[solution[j]][solution[jp1]]);
+        difference_plus += (distance_matrix[solution[i]][solution[j]] +
+                            distance_matrix[solution[i+1]][solution[jp1]]);
+
+        return (difference_plus - difference_minus);
+}
+
 
 void swap_here(int *a, int *b)
 {
