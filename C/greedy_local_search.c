@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
+#include <unistd.h> // for checking whether file exists
 #include "random_permutation.h"
 #include "read_and_allocate_data.h"
 #include "create_distance_matrix.h"
@@ -16,50 +17,75 @@ double calculate_shortened_fitness(int *solution, int i, int j, double **distanc
 void print_array_here(int *arr, int size);
 double calculate_fitness_edge_exchange(int *solution, double **distance_matrix, int size, int i, int j);
 void reverse_sub(int *start, int *end);
-void save_as_csv(int *solution, int size, char *name);
+void save_as_csv(int *solution, int size, char *name, int flag);
 
 int main(void)
 {
 	char *file_path = "gr137.tsp";
-	
+	int i;
 	int *solution;
+	int flag = 0;
 
         double **coordinates_cities_array = coordinates_cities(file_path);
         
 	double **distance_matrix_cities = distance_matrix(coordinates_cities_array, 137);
 	
         //print_matrix(distance_matrix_cities, 532);
+	
 	srand(time(NULL));	
-	solution = random_permutation(137);
-	
-	clock_t start = clock();
-	greedy_local_search(distance_matrix_cities, solution, 137);
-	clock_t end = clock();
+	for (i = 0; i < 100; i++)
+	{
+		printf("%d\n", i);
+		flag = 0;
+		if (i == 100)
+		{
+			flag = 1;
+			printf("xD\n");
+		}
 
-	printf("It took %lf seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
-	
-	save_as_csv(solution, 137, "gr137_solution.csv");
+		solution = random_permutation(137);
+		clock_t start = clock();
+		greedy_local_search(distance_matrix_cities, solution, 137);
+		clock_t end = clock();
 
+		printf("It took %lf seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
+	
+		save_as_csv(solution, 137, "gr137_solution_2.csv", flag);
+	}
 	return 0;
 }
 
-void save_as_csv(int *solution, int size, char *name)
+void save_as_csv(int *solution, int size, char *name, int flag)
 {
 	FILE *fp;
 	int i;
+	char *string;
 
-	fp = fopen(name, "w");
-
+	if (flag)
+		string = "";
+	else
+		string = "\n";
+	
+	if (access(name, F_OK) == 0)
+	{
+		fp = fopen(name, "a");
+	}
+	else
+	{
+		fp = fopen(name, "w");
+	}
 	if (fp == NULL)
 	{
 		printf("Error!");
 		exit(1);
 	}
 
+
 	for (i = 0; i < size; i++)
 	{
 		fprintf(fp, "%d ", solution[i]);
 	}
+	fprintf(fp, "%s", string);
 
 	fclose(fp);
 
@@ -87,7 +113,7 @@ void greedy_local_search(double **distance_matrix, int *solution, int size)
         
 	start_mili = (long) timecheck.tv_sec * 1000 + (long) timecheck.tv_usec / 1000;
 	
-	srand(start_mili);
+	//srand(start_mili);
 	int stop_cond = 0;
 	while (1)
 	{
