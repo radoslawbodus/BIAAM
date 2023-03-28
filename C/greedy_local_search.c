@@ -6,6 +6,8 @@
 #include "read_and_allocate_data.h"
 #include "create_distance_matrix.h"
 
+// Added writing the solution
+//
 double fitness(int *solution, double **distance_matrix, int size);
 void greedy_local_search(double **distance_matrix, int *solution, int size);
 void copy_solution(int *target, int *source, int size);
@@ -14,6 +16,7 @@ double calculate_shortened_fitness(int *solution, int i, int j, double **distanc
 void print_array_here(int *arr, int size);
 double calculate_fitness_edge_exchange(int *solution, double **distance_matrix, int size, int i, int j);
 void reverse_sub(int *start, int *end);
+void save_as_csv(int *solution, int size, char *name);
 
 int main(void)
 {
@@ -35,8 +38,34 @@ int main(void)
 
 	printf("It took %lf seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
 	
+	save_as_csv(solution, 137, "gr137_solution.csv");
+
 	return 0;
 }
+
+void save_as_csv(int *solution, int size, char *name)
+{
+	FILE *fp;
+	int i;
+
+	fp = fopen(name, "w");
+
+	if (fp == NULL)
+	{
+		printf("Error!");
+		exit(1);
+	}
+
+	for (i = 0; i < size; i++)
+	{
+		fprintf(fp, "%d ", solution[i]);
+	}
+
+	fclose(fp);
+
+	return;
+}
+
 
 void greedy_local_search(double **distance_matrix, int *solution, int size)
 {
