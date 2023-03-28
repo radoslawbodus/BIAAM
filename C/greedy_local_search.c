@@ -6,9 +6,10 @@
 #include "random_permutation.h"
 #include "read_and_allocate_data.h"
 #include "create_distance_matrix.h"
-
+#include "utils.h"
 // Added writing the solution
 //
+/*
 double fitness(int *solution, double **distance_matrix, int size);
 void greedy_local_search(double **distance_matrix, int *solution, int size);
 void copy_solution(int *target, int *source, int size);
@@ -18,6 +19,8 @@ void print_array_here(int *arr, int size);
 double calculate_fitness_edge_exchange(int *solution, double **distance_matrix, int size, int i, int j);
 void reverse_sub(int *start, int *end);
 void save_as_csv(int *solution, int size, char *name, int flag);
+*/
+void greedy_local_search(double **distance_matrix, int *solution, int size);
 
 int main(void)
 {
@@ -33,9 +36,10 @@ int main(void)
         //print_matrix(distance_matrix_cities, 532);
 	
 	srand(time(NULL));	
+	
 	for (i = 0; i < 100; i++)
 	{
-		printf("%d\n", i);
+		//printf("%d\n", i);
 		flag = 0;
 		if (i == 100)
 		{
@@ -52,9 +56,12 @@ int main(void)
 	
 		save_as_csv(solution, 137, "gr137_solution_2.csv", flag);
 	}
+	
+
+	
 	return 0;
 }
-
+/*
 void save_as_csv(int *solution, int size, char *name, int flag)
 {
 	FILE *fp;
@@ -81,17 +88,20 @@ void save_as_csv(int *solution, int size, char *name, int flag)
 	}
 
 
-	for (i = 0; i < size; i++)
+	for (i = 0; i < size - 1; i++)
 	{
 		fprintf(fp, "%d ", solution[i]);
 	}
+
+	fprintf(fp, "%d", solution[size - 1]);
+	
 	fprintf(fp, "%s", string);
 
 	fclose(fp);
 
 	return;
 }
-
+*/
 
 void greedy_local_search(double **distance_matrix, int *solution, int size)
 {
@@ -129,8 +139,8 @@ void greedy_local_search(double **distance_matrix, int *solution, int size)
 		{
 			for (int j = i + 1; j < size; j++)
 			{
-				if ((current_delta = calculate_shortened_fitness(solution, i, j, distance_matrix, size, current_fitness)) < best_delta)
-				{
+				if ((current_delta = delta_two_nodes_exchange(solution, i, j, distance_matrix, size)) < best_delta)
+{
 					best_delta = current_delta;
 					best_i = i;
 					best_j = j;
@@ -139,8 +149,8 @@ void greedy_local_search(double **distance_matrix, int *solution, int size)
 					type = 0;
 					break;
 				}
-				if ((current_delta = calculate_fitness_edge_exchange(solution, distance_matrix, size, i, j)) < best_delta)
-				{
+				if ((current_delta = delta_two_edge_exchange(solution, distance_matrix, size, i, j)) < best_delta)
+{
 					best_delta = current_delta;
                                         best_i = i;
                                         best_j = j;
@@ -156,9 +166,9 @@ void greedy_local_search(double **distance_matrix, int *solution, int size)
 		if (best_delta < 0)
 		{
 			if (type == 0)
-				swap_here(&solution[best_i], &solution[best_j]);
+				swap(&solution[best_i], &solution[best_j]);
 			else if (type == 1)
-				reverse_sub(&solution[best_i+1], &solution[best_j]);
+				reverse_route(&solution[best_i+1], &solution[best_j]);
 			//printf("Best Fitness: %lf Best delta: %lf type: %d, (i: %d, j: %d)\n", fitness(solution, distance_matrix, size), best_delta, type, best_i, best_j);
 			//print_array_here(solution, size);
 		}
@@ -177,7 +187,7 @@ void greedy_local_search(double **distance_matrix, int *solution, int size)
 
 	return;
 }
-
+/*
 void reverse_sub(int *start, int *end)
 {
 	int i = 0;
@@ -303,4 +313,4 @@ void copy_solution(int *target, int *source, int size)
 
 	return;
 }
-		
+*/		

@@ -4,6 +4,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include "random_permutation.h"
+#include "utils.h"
 
 /*
 int main(void)
@@ -70,11 +71,3 @@ void print_array(int *arr, int size)
 	return;
 }
 
-void swap(int *a, int *b)
-{
-	int temp = *a;
-	*a = *b;
-	*b = temp;
-
-	return;
-}
