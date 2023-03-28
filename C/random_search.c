@@ -5,21 +5,21 @@
 #include "random_permutation.h"
 #include "read_and_allocate_data.h"
 #include "create_distance_matrix.h"
+#include "random_search.h"
+#include "utils.h"
 
-double fitness(int *solution, double **distance_matrix, int size);
-void random_search(double **distance_matrix, int *solution, int size);
-void copy_solution(int *target, int *source, int size);
+//void random_search(double **distance_matrix, int *solution, int size);
 
-
+/*
 int main(void)
 {
 	char *file_path = "gr137.tsp";
 	
 	int *solution;
-
+	int size;
 	srand((unsigned int) time(NULL));
 
-        double **coordinates_cities_array = coordinates_cities(file_path);
+        double **coordinates_cities_array = coordinates_cities(file_path, &size);
         double **distance_matrix_cities = distance_matrix(coordinates_cities_array, 137);
 	
         //print_matrix(distance_matrix_cities, 137);
@@ -30,8 +30,8 @@ int main(void)
 	
 	return 0;
 }
-
-void random_search(double **distance_matrix, int *solution, int size)
+*/
+void random_search(double **distance_matrix, int *solution, int size, int time_mili)
 {
 	long start_mili, end_mili;
 	struct timeval timecheck;
@@ -46,7 +46,7 @@ void random_search(double **distance_matrix, int *solution, int size)
 	{
 		gettimeofday(&timecheck, NULL);
 	        end_mili = (long) timecheck.tv_sec * 1000 + (long) timecheck.tv_usec / 1000;
-		if (end_mili -start_mili > 10000)
+		if (end_mili -start_mili > time_mili)
 			break;
 		
 
@@ -62,12 +62,13 @@ void random_search(double **distance_matrix, int *solution, int size)
 
 	}
 	
-	printf("There were %d iterations\n", counter);
-	printf("Best fitness so far: %5.2lf\n", fitness(solution, distance_matrix, size));
+	//printf("There were %d iterations\n", counter);
+	//printf("Best fitness so far: %5.2lf\n", fitness(solution, distance_matrix, size));
 
 	return;
 }
 
+/*
 double fitness(int *solution, double **distance_matrix, int size)
 {
 	double fitness_value = 0;
@@ -91,4 +92,4 @@ void copy_solution(int *target, int *source, int size)
 
 	return;
 }
-		
+*/		

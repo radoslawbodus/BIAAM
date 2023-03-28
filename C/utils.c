@@ -127,7 +127,7 @@ void reverse_route(int *start, int *end)
         }
 }
 
-void save_as_csv(int *solution, int size, char *name, int flag)
+void save_as_csv(int *solution, double fitness_value, int size, char *name, int flag)
 {
         FILE *fp;
         int i;
@@ -158,8 +158,8 @@ void save_as_csv(int *solution, int size, char *name, int flag)
                 fprintf(fp, "%d ", solution[i]);
         }
 
-        fprintf(fp, "%d", solution[size - 1]);
-
+        fprintf(fp, "%d ", solution[size - 1]);
+	fprintf(fp, "%lf", fitness_value);
         fprintf(fp, "%s", string);
 
         fclose(fp);

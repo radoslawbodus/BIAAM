@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-double **coordinates_cities(char *);
-double **initialize_coordinates(int dimensions);
-void print_array_2d(double **, int dimensions);
+#include "read_and_allocate_data.h"
+//double **coordinates_cities(char *);
+//double **initialize_coordinates(int dimensions);
+//void print_array_2d(double **, int dimensions);
 
 /*
 int main(int argc, char *argv[])
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 }
 */
 
-double **coordinates_cities(char * file_name)
+double **coordinates_cities(char * file_name, int *size)
 {
 	double **coordinates;
 
@@ -118,6 +118,8 @@ double **coordinates_cities(char * file_name)
 	//print_array_2d(coordinates, dimensions);
 
 	fclose(fp);
+	
+	*size = dimensions;
 
 	return coordinates;
 }

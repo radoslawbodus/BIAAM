@@ -19,7 +19,7 @@ void reverse_sub(int *start, int *end);
 */
 
 void steepest_local_search(double **distance_matrix, int *solution, int size);
-
+/*
 int main(void)
 {
 	char *file_path = "gr137.tsp";
@@ -42,6 +42,7 @@ int main(void)
 	
 	return 0;
 }
+*/
 
 void steepest_local_search(double **distance_matrix, int *solution, int size)
 {
@@ -61,7 +62,7 @@ void steepest_local_search(double **distance_matrix, int *solution, int size)
         
 	start_mili = (long) timecheck.tv_sec * 1000 + (long) timecheck.tv_usec / 1000;
 	
-	srand(start_mili);
+	//srand(start_mili);
 	int stop_cond = 0;
 	while (1)
 	{
@@ -119,10 +120,10 @@ void steepest_local_search(double **distance_matrix, int *solution, int size)
 
 	}
 	
-	printf("There were %d iterations\n", counter);
+	//printf("There were %d iterations\n", counter);
 	double best_solution_found = fitness(solution, distance_matrix, size);
 
-	printf("Best solution found: %lf\n", best_solution_found);
+	//printf("Best solution found: %lf\n", best_solution_found);
 
 	return;
 }

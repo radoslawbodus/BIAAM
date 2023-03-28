@@ -4,21 +4,31 @@
 #include "random_permutation.h"
 #include "read_and_allocate_data.h"
 #include "create_distance_matrix.h"
+#include "random_walk.h"
+#include "utils.h"
 
+/*
 double fitness(int *solution, double **distance_matrix, int size);
 void random_walk(double **distance_matrix, int *solution, int size);
 void copy_solution(int *target, int *source, int size);
 void swap_here(int *a, int *b);
 double calculate_shortened_fitness(int *solution, int i, int j, double **distance_matrix, int size, double previous_fitness);
 void print_array_here(int *arr, int size);
+*/
 
+double calculate_shortened_fitness(int *solution, int i, int j, double **distance_matrix, int size, double previous_fitness);
+
+//void random_walk(double **distance_matrix, int *solution, int size);
+
+/*
 int main(void)
 {
 	char *file_path = "gr137.tsp";
 	
 	int *solution;
+	int size;
 
-        double **coordinates_cities_array = coordinates_cities(file_path);
+        double **coordinates_cities_array = coordinates_cities(file_path, &size);
         
 	double **distance_matrix_cities = distance_matrix(coordinates_cities_array, 137);
 
@@ -27,12 +37,13 @@ int main(void)
 	solution = random_permutation(137);
 	
 	random_walk(distance_matrix_cities, solution, 137);
-	
+		
 	
 	return 0;
 }
+*/
 
-void random_walk(double **distance_matrix, int *solution, int size)
+void random_walk(double **distance_matrix, int *solution, int size, int time_mili)
 {
 	long start_mili, end_mili;
 	struct timeval timecheck;
@@ -41,7 +52,7 @@ void random_walk(double **distance_matrix, int *solution, int size)
 	
 	int counter = 0;
 	double current_fitness = fitness(random_solution, distance_matrix, size);
-	
+	double current_delta = 0;
 	double best_fitness = current_fitness;
 	int i, j;
 	
@@ -50,13 +61,13 @@ void random_walk(double **distance_matrix, int *solution, int size)
         
 	start_mili = (long) timecheck.tv_sec * 1000 + (long) timecheck.tv_usec / 1000;
 	
-	srand(start_mili);
+	//srand(start_mili);
 	int stop_cond = 0;	
 	while (1)
 	{
 		gettimeofday(&timecheck, NULL);
 	        end_mili = (long) timecheck.tv_sec * 1000 + (long) timecheck.tv_usec / 1000;
-		if (end_mili -start_mili > 10000)
+		if (end_mili -start_mili > time_mili)
 			break;
 		
 		
@@ -67,23 +78,26 @@ void random_walk(double **distance_matrix, int *solution, int size)
 			j = size - 1;
 		
 		if ((current_fitness = calculate_shortened_fitness(random_solution, i, j, distance_matrix, size, current_fitness)) < best_fitness)
+		
+		//if ((current_delta = delta_two_nodes_exchange(random_solution, i, j, distance_matrix, size)) < 0)
 		{
-			swap_here(&random_solution[i], &random_solution[j]);
+			swap(&random_solution[i], &random_solution[j]);
 			copy_solution(solution, random_solution, size);
-			best_fitness = current_fitness;
+			best_fitness = fitness(solution, distance_matrix, size);
+			
 			//printf("Best fitness so far: %5.2lf ; %5.2f\n", fitness(solution, distance_matrix, size), best_fitness);
 		}
 		else
 		{
-			swap_here(&random_solution[i], &random_solution[j]);
+			swap(&random_solution[i], &random_solution[j]);
 		}
 
 		counter++;
 
 	}
 
-	printf("There were %d iterations\n", counter);
-	printf("Best fitness: %5.2lf\n", fitness(solution, distance_matrix, size));
+	//printf("There were %d iterations\n", counter);
+	//printf("Best fitness: %5.2lf\n", fitness(solution, distance_matrix, size));
 	
 	return;
 }
@@ -97,6 +111,8 @@ void swap_here(int *a, int *b)
 
 	return;
 }
+
+
 
 double calculate_shortened_fitness(int *solution, int i, int j, double **distance_matrix, int size, double previous_fitness)
 {
@@ -151,6 +167,8 @@ double calculate_shortened_fitness(int *solution, int i, int j, double **distanc
 	return current_fitness;
 }
 
+
+/*
 double fitness(int *solution, double **distance_matrix, int size)
 {
 	double fitness_value = 0;
@@ -184,4 +202,4 @@ void copy_solution(int *target, int *source, int size)
 
 	return;
 }
-		
+*/	

@@ -21,7 +21,7 @@ void reverse_sub(int *start, int *end);
 void save_as_csv(int *solution, int size, char *name, int flag);
 */
 void greedy_local_search(double **distance_matrix, int *solution, int size);
-
+/*
 int main(void)
 {
 	char *file_path = "gr137.tsp";
@@ -61,6 +61,7 @@ int main(void)
 	
 	return 0;
 }
+*/
 /*
 void save_as_csv(int *solution, int size, char *name, int flag)
 {
@@ -107,7 +108,7 @@ void greedy_local_search(double **distance_matrix, int *solution, int size)
 {
 	long start_mili, end_mili;
 	struct timeval timecheck;
-	int *random_solution = random_permutation(532);
+	int *random_solution = random_permutation(size);
 	copy_solution(random_solution, solution, size);
 	
 	int counter = 0;
@@ -180,10 +181,10 @@ void greedy_local_search(double **distance_matrix, int *solution, int size)
 
 	}
 	
-	printf("There were %d iterations\n", counter);
+	//printf("There were %d iterations\n", counter);
 	double best_solution_found = fitness(solution, distance_matrix, size);
 
-	printf("Best solution found: %lf\n", best_solution_found);
+	//printf("Best solution found: %lf\n", best_solution_found);
 
 	return;
 }
