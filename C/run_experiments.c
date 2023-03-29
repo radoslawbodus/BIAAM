@@ -13,7 +13,7 @@
 #include "utils.h"
 
 void slice(const char *str, char *result, size_t start, size_t end);
-
+void one_instance_tsp(char *file_name);
 
 int main(int argc, char *argv[])
 {
@@ -24,7 +24,22 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	
-	char *file_path = argv[1];
+	int i;
+	
+	for (i = 1; i < argc; i++)
+	{
+		printf("%d: %s\n", i, argv[i]);
+		one_instance_tsp(argv[i]);
+	}
+	
+	
+	return 0;
+}
+
+void one_instance_tsp(char *file_name)
+{
+
+	char *file_path = file_name;
 	
 	int string_length = strlen(file_path);
 	
@@ -64,8 +79,10 @@ int main(int argc, char *argv[])
 	
 	for (i = 0; i < iterations; i++)
 	{
-		printf("i: %d\n", i);
-
+		if ((i+1) % 25 == 0)
+		{
+			printf("i: %d\n", i+1);
+		}
 		flag = 0;
 		shuffle(solution, size);
 		
@@ -95,8 +112,8 @@ int main(int argc, char *argv[])
 
 	}
 
-	return 0;
 }
+
 
 
 void slice(const char *str, char *result, size_t start, size_t end)
