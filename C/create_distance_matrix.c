@@ -41,7 +41,7 @@ double **distance_matrix(double **cities, int dimensions)
 	
 	}
 	clock_t end = clock();
-	printf("%lf\n", (double)(end - start) / CLOCKS_PER_SEC * 1000);
+	//printf("%lf\n", (double)(end - start) / CLOCKS_PER_SEC * 1000);
 
 	
 	return distance_matrix_cities;

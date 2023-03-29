@@ -10,6 +10,7 @@
 #include "greedy_local_search.h"
 #include "random_walk.h"
 #include "random_search.h"
+#include "nearest_neighbor.h"
 #include "utils.h"
 
 void slice(const char *str, char *result, size_t start, size_t end);
@@ -69,7 +70,6 @@ void one_instance_tsp(char *file_name, int iterations)
 	
 	printf("%s\n", steepest_save);	
 	*/
-	printf("\n");
 	int i, size;
 	int flag = 0;
 	int time_mili;
@@ -113,9 +113,13 @@ void one_instance_tsp(char *file_name, int iterations)
 	strcat(random_walk_save, "_rw.csv");
 	//printf("%s\n", random_walk_save);
 	
+	char heuristic_save[64];	
+	//slice(file_path, random_walk_save, 0, string_length - 4);
+	strcpy(heuristic_save, copy_file_path);
+	strcat(heuristic_save, "_h.csv");
 
 
-	printf("%d\n", flag_euc2d);
+	//printf("%d\n", flag_euc2d);
 	//deallocate
         double **distance_matrix_cities = distance_matrix(coordinates_cities_array, size);	
 	//deallocate
@@ -124,7 +128,7 @@ void one_instance_tsp(char *file_name, int iterations)
 	long start_micro, end_micro;
         struct timeval timecheck;
 	long time_micro_greedy, time_micro_steepest;
-	long iterations_done_rw, iterations_done_rs, iterations_done_steep, iterations_done_greed;
+	long iterations_done_rw, iterations_done_rs, iterations_done_steep, iterations_done_greed, iterations_done_h;
 	long evaluations_done_greed, evaluations_done_steep;
 	double fitness_initial_solution = 0;
 	srand(time(NULL));
@@ -135,7 +139,6 @@ void one_instance_tsp(char *file_name, int iterations)
 		{
 			printf("i: %d\n", i+1);
 		}
-		printf("Let's Go\n");
 		flag = 0;
 		shuffle(solution, size);
 		
@@ -146,7 +149,6 @@ void one_instance_tsp(char *file_name, int iterations)
 	        start_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
 		
 		greedy_local_search(distance_matrix_cities, solution, size, &iterations_done_greed, &evaluations_done_greed);
-		printf("Lets' Go 2\n");	
 		gettimeofday(&timecheck, NULL);
 	        end_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
 			
@@ -154,7 +156,6 @@ void one_instance_tsp(char *file_name, int iterations)
 		
 		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, greedy_save, flag, time_micro_greedy, iterations_done_greed, evaluations_done_greed, fitness_initial_solution);
 		
-		printf("Let's Go 3\n");
 		shuffle(solution, size);
 
 		fitness_initial_solution = fitness(solution, distance_matrix_cities, size);
@@ -170,8 +171,8 @@ void one_instance_tsp(char *file_name, int iterations)
 		time_micro_steepest = end_micro - start_micro;
 		
 		time_mili = time_micro_steepest / 1000;
-		
-		printf("Let's Go 4\n");
+		if ((i + 1) % 10 == 0)
+			printf("Time in miliseconds (Steepest): %d\n", time_mili);
 		
 		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, steepest_save, flag, time_micro_steepest, iterations_done_steep, evaluations_done_steep, fitness_initial_solution);
 		shuffle(solution, size);
@@ -188,8 +189,26 @@ void one_instance_tsp(char *file_name, int iterations)
 		random_search(distance_matrix_cities, solution, size, time_mili, &iterations_done_rs);
 		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, random_search_save, flag, time_micro_steepest, iterations_done_rs, iterations_done_rs, fitness_initial_solution);
 
+		shuffle(solution, size);
+		
+		fitness_initial_solution = fitness(solution, distance_matrix_cities, size);
+
+		gettimeofday(&timecheck, NULL);
+                start_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
+
+		nearest_neighbor(distance_matrix_cities, solution, size, &iterations_done_h);
+
+		gettimeofday(&timecheck, NULL);
+                end_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
+
+
+		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, heuristic_save, flag, end_micro - start_micro, iterations_done_h, iterations_done_h, fitness_initial_solution);
+
+
 	}
 
+	printf("\n");
+	
 	deallocate_memory_2d(distance_matrix_cities, size);
 	deallocate_memory_2d(coordinates_cities_array, size);
 	free(solution);
