@@ -22,4 +22,5 @@ void reverse_route(int *start, int *end);
 // Saves solution to csv
 void save_as_csv(int *solution, double fitness_value, int size, char *name, int flag);
 
-
+// Deallocate memory
+void deallocate_memory_2d(double **arr, int n);

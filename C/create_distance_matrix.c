@@ -46,7 +46,7 @@ double **distance_matrix(double **cities, int dimensions)
 	
 	return distance_matrix_cities;
 }
-
+/*
 void distance_matrix_time_test(int i)
 {
 	char *instances[9] = {
@@ -70,7 +70,7 @@ void distance_matrix_time_test(int i)
 	free(coordinates_cities_array);
 	free(distance_matrix_cities);
 }
-
+*/
 
 double calculate_distance(double x1, double y1, double x2, double y2)
 {

@@ -13,12 +13,12 @@
 #include "utils.h"
 
 void slice(const char *str, char *result, size_t start, size_t end);
-void one_instance_tsp(char *file_name);
+void one_instance_tsp(char *file_name, int iterations);
 
 int main(int argc, char *argv[])
 {
 
-	if (argc < 2)
+	if (argc < 3)
 	{
 		printf("Daj argument byczku\n");
 		exit(1);
@@ -26,21 +26,25 @@ int main(int argc, char *argv[])
 	
 	int i;
 	
-	for (i = 1; i < argc; i++)
+	for (i = 2; i < argc; i++)
 	{
 		printf("%d: %s\n", i, argv[i]);
-		one_instance_tsp(argv[i]);
+		one_instance_tsp(argv[i], atoi(argv[1]));
 	}
 	
 	
 	return 0;
 }
 
-void one_instance_tsp(char *file_name)
+void one_instance_tsp(char *file_name, int iterations)
 {
-
-	char *file_path = file_name;
 	
+	char *file_path = file_name;
+	char copy_file_path[strlen(file_path) + 1];
+	strcpy(copy_file_path, file_path);
+	copy_file_path[strlen(copy_file_path) - 4] = 0;
+	//printf("%s\n", copy_file_path);
+	/*	
 	int string_length = strlen(file_path);
 	
 	char greedy_save[64];	
@@ -64,12 +68,57 @@ void one_instance_tsp(char *file_name)
 	printf("%s\n", random_walk_save);
 	
 	printf("%s\n", steepest_save);	
-	
+	*/
+	printf("\n");
 	int i, size;
-	int iterations = 100, flag = 0;
+	int flag = 0;
 	int time_mili;
-	double **coordinates_cities_array = coordinates_cities(file_path, &size);
+	int flag_euc2d;
+	//Deallocate
+	printf("xD: %d\n", size);
+	double **coordinates_cities_array = coordinates_cities(file_path, &size, &flag_euc2d);
+	if (flag_euc2d == 0)
+	{
+		printf("EUC: %d\n", flag_euc2d); 
+		deallocate_memory_2d(coordinates_cities_array, size);
+		return;
+	}
+	printf("FLAG: %d\n", flag_euc2d);
+	printf("xD: %d\n", size);
+	//char *file_path = file_name;
+	
+	int string_length = strlen(file_path);
+	
+	char greedy_save[64];
+	//slice(file_path, greedy_save, 0, string_length - 4);
+	strcpy(greedy_save, copy_file_path);
+	strcat(greedy_save, "_greedy.csv");
+	//printf("%s\n", greedy_save);
+	
+	char steepest_save[64];
+	//slice(file_path, steepest_save, 0, string_length - 4);
+	strcpy(steepest_save, copy_file_path);
+	strcat(steepest_save, "_steepest.csv");
+	//printf("%s\n", steepest_save);
+	
+	char random_search_save[64];
+	//slice(file_path, random_search_save, 0, string_length - 4);
+	strcpy(random_search_save, copy_file_path);
+	strcat(random_search_save, "_rs.csv");
+	//printf("%s\n", random_search_save);
+	
+	char random_walk_save[64];	
+	//slice(file_path, random_walk_save, 0, string_length - 4);
+	strcpy(random_walk_save, copy_file_path);
+	strcat(random_walk_save, "_rw.csv");
+	//printf("%s\n", random_walk_save);
+	
+
+
+	printf("%d\n", flag_euc2d);
+	//deallocate
         double **distance_matrix_cities = distance_matrix(coordinates_cities_array, size);	
+	//deallocate
 	int *solution = random_permutation(size);
 	
 	long start_mili, end_mili;
@@ -112,11 +161,9 @@ void one_instance_tsp(char *file_name)
 
 	}
 
+	deallocate_memory_2d(distance_matrix_cities, size);
+	deallocate_memory_2d(coordinates_cities_array, size);
+	free(solution);
+
 }
 
-
-
-void slice(const char *str, char *result, size_t start, size_t end)
-{
-    strncpy(result, str + start, end - start);
-}

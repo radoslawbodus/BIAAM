@@ -28,20 +28,22 @@ int main(int argc, char *argv[])
 }
 */
 
-double **coordinates_cities(char * file_name, int *size)
+double **coordinates_cities(char * file_name, int *size, int *flag)
 {
 	double **coordinates;
 
 	FILE *fp;
 	int read;
-
+	int max_line_length = 64;
 	char name[32];
+	char weight_type[32];
+
 	int dimensions;
 	
 	int dummy, dummy2, previous, current;
 	int i = 0, successful_reads = 0;
 
-	char ch, line[32];
+	char ch, line[max_line_length];
 	int line_length;
 
 	if ((fp = fopen(file_name, "r")) == NULL)
@@ -62,6 +64,8 @@ double **coordinates_cities(char * file_name, int *size)
 		while (fgetc(fp) != '\n')
 			continue;
 	}
+	
+
 
 	if (read)
 	{
@@ -75,8 +79,21 @@ double **coordinates_cities(char * file_name, int *size)
 		exit(EXIT_FAILURE);
 	}
 
-
-	while (fgets(line, 32, fp) != NULL)
+	while ((read = fscanf(fp, "EDGE_WEIGHT_TYPE : %s \n", weight_type)) == 0)
+	{
+		while (fgetc(fp) != '\n')
+			continue;
+	}
+	*flag = 1;
+	if (strcmp(weight_type, "EUC_2D") != 0)
+	{
+		*flag = 0;
+		*size = dimensions;
+		return coordinates;
+	}
+	printf("%s\n", weight_type);
+	
+	while (fgets(line, max_line_length, fp) != NULL)
 	{
 		line_length = strlen(line);
 		if (line[line_length-1] == '\n')
@@ -107,12 +124,15 @@ double **coordinates_cities(char * file_name, int *size)
 	}
 
 	//printf("successful reads: %d\n", successful_reads);
-	
+	*flag = 1;
+
 	if (successful_reads != dimensions)
-	{	
-		printf("Format not supported (yet) :(\n");
-		fclose(fp);
-		exit(EXIT_FAILURE);
+	{
+			
+		printf("Format not supported (yet) :(read: %d\n", successful_reads);
+		*flag = 0;
+		//fclose(fp);
+		//exit(EXIT_FAILURE);
 	}
 	
 	//print_array_2d(coordinates, dimensions);

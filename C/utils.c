@@ -167,3 +167,14 @@ void save_as_csv(int *solution, double fitness_value, int size, char *name, int 
         return;
 }
 
+void deallocate_memory_2d(double **arr, int n)
+{
+	int i;
+	for (i = 0; i < n; i++)
+		free(arr[i]);
+	free(arr);
+	
+	return;
+}
+
+
