@@ -54,12 +54,14 @@ void distance_matrix_time_test(int i)
 	"eli76.tsp", "gr137.tsp", "gr229.tsp",
 	"a280.tsp", "att532.tsp", "d657.tsp"
 	};
+	
+	int size;
 
 	const int sizes[9] = {14, 29, 52, 76, 137, 229, 280, 532, 657};
 	
 	char *file_path = instances[i];
 
-	double **coordinates_cities_array = coordinates_cities(file_path);
+	double **coordinates_cities_array = coordinates_cities(file_path, &size);
 
 	//clock_t begin = clock();
 	double **distance_matrix_cities = distance_matrix(coordinates_cities_array, sizes[i]);
