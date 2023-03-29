@@ -65,7 +65,7 @@ double **coordinates_cities(char * file_name, int *size, int *flag)
 			continue;
 	}
 	
-
+	
 
 	if (read)
 	{

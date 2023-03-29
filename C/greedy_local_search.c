@@ -108,12 +108,10 @@ void greedy_local_search(double **distance_matrix, int *solution, int size, long
 {
 	long start_mili, end_mili;
 	struct timeval timecheck;
-	int *random_solution = random_permutation(size);
-	copy_solution(random_solution, solution, size);
 	
 	int counter = 0;
 	int count_evaluations = 0;
-	double current_fitness = fitness(random_solution, distance_matrix, size);
+	double current_fitness = fitness(solution, distance_matrix, size);
 	double previous_fitness = current_fitness;
 	double best_fitness = current_fitness;
 	int i, j;
@@ -190,7 +188,7 @@ void greedy_local_search(double **distance_matrix, int *solution, int size, long
 	double best_solution_found = fitness(solution, distance_matrix, size);
 
 	//printf("Best solution found: %lf\n", best_solution_found);
-
+	
 	return;
 }
 /*

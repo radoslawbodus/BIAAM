@@ -64,7 +64,7 @@ void random_search(double **distance_matrix, int *solution, int size, int time_m
 	*iterations_done = counter;
 	//printf("There were %d iterations\n", counter);
 	//printf("Best fitness so far: %5.2lf\n", fitness(solution, distance_matrix, size));
-
+	free(random_solution);
 	return;
 }
 

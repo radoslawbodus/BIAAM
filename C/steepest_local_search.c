@@ -48,12 +48,10 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
 {
 	long start_mili, end_mili;
 	struct timeval timecheck;
-	int *random_solution = random_permutation(532);
-	copy_solution(random_solution, solution, size);
 	
 	int counter = 0;
 	int count_evaluations = 0;
-	double current_fitness = fitness(random_solution, distance_matrix, size);
+	double current_fitness = fitness(solution, distance_matrix, size);
 	double previous_fitness = current_fitness;
 	double best_fitness = current_fitness;
 	int i, j;
@@ -67,6 +65,7 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
 	int stop_cond = 0;
 	while (1)
 	{
+		counter++;	
 		gettimeofday(&timecheck, NULL);
 	        end_mili = (long) timecheck.tv_sec * 1000 + (long) timecheck.tv_usec / 1000;
 		if (end_mili -start_mili > 10000)
@@ -97,7 +96,6 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
                                         best_j = j;
                                         type = 1;
                                         //printf("Nice\n");
-                                        break;
                                 }
 				count_evaluations += 2;
 
@@ -118,12 +116,11 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
 			break;
 		}
 
-		counter++;
-
 	}
 	
 	*iterations_done = counter; // count_evaluations
 	*evaluations_done = count_evaluations;
+	
 	//printf("There were %d iterations\n", counter);
 	double best_solution_found = fitness(solution, distance_matrix, size);
 

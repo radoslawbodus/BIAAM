@@ -135,6 +135,7 @@ void one_instance_tsp(char *file_name, int iterations)
 		{
 			printf("i: %d\n", i+1);
 		}
+		printf("Let's Go\n");
 		flag = 0;
 		shuffle(solution, size);
 		
@@ -145,14 +146,15 @@ void one_instance_tsp(char *file_name, int iterations)
 	        start_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
 		
 		greedy_local_search(distance_matrix_cities, solution, size, &iterations_done_greed, &evaluations_done_greed);
-	
+		printf("Lets' Go 2\n");	
 		gettimeofday(&timecheck, NULL);
 	        end_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
 			
 		time_micro_greedy = end_micro - start_micro;
 		
 		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, greedy_save, flag, time_micro_greedy, iterations_done_greed, evaluations_done_greed, fitness_initial_solution);
-
+		
+		printf("Let's Go 3\n");
 		shuffle(solution, size);
 
 		fitness_initial_solution = fitness(solution, distance_matrix_cities, size);
@@ -168,10 +170,10 @@ void one_instance_tsp(char *file_name, int iterations)
 		time_micro_steepest = end_micro - start_micro;
 		
 		time_mili = time_micro_steepest / 1000;
-
+		
+		printf("Let's Go 4\n");
 		
 		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, steepest_save, flag, time_micro_steepest, iterations_done_steep, evaluations_done_steep, fitness_initial_solution);
-
 		shuffle(solution, size);
 		
 		fitness_initial_solution = fitness(solution, distance_matrix_cities, size);

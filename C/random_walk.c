@@ -99,6 +99,7 @@ void random_walk(double **distance_matrix, int *solution, int size, int time_mil
 	//printf("There were %d iterations\n", counter);
 	//printf("Best fitness: %5.2lf\n", fitness(solution, distance_matrix, size));
 	
+	free(random_solution);	
 	return;
 }
 
