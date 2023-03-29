@@ -20,7 +20,7 @@ double calculate_fitness_edge_exchange(int *solution, double **distance_matrix, 
 void reverse_sub(int *start, int *end);
 void save_as_csv(int *solution, int size, char *name, int flag);
 */
-void greedy_local_search(double **distance_matrix, int *solution, int size);
+//void greedy_local_search(double **distance_matrix, int *solution, int size);
 /*
 int main(void)
 {
@@ -104,7 +104,7 @@ void save_as_csv(int *solution, int size, char *name, int flag)
 }
 */
 
-void greedy_local_search(double **distance_matrix, int *solution, int size)
+void greedy_local_search(double **distance_matrix, int *solution, int size, long *iterations_done)
 {
 	long start_mili, end_mili;
 	struct timeval timecheck;
@@ -181,6 +181,8 @@ void greedy_local_search(double **distance_matrix, int *solution, int size)
 
 	}
 	
+	*iterations_done = counter;
+
 	//printf("There were %d iterations\n", counter);
 	double best_solution_found = fitness(solution, distance_matrix, size);
 

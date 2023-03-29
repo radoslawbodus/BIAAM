@@ -43,7 +43,7 @@ int main(void)
 }
 */
 
-void random_walk(double **distance_matrix, int *solution, int size, int time_mili)
+void random_walk(double **distance_matrix, int *solution, int size, int time_mili, long *iterations_done)
 {
 	long start_mili, end_mili;
 	struct timeval timecheck;
@@ -95,7 +95,7 @@ void random_walk(double **distance_matrix, int *solution, int size, int time_mil
 		counter++;
 
 	}
-
+	*iterations_done = counter;
 	//printf("There were %d iterations\n", counter);
 	//printf("Best fitness: %5.2lf\n", fitness(solution, distance_matrix, size));
 	

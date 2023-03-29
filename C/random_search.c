@@ -31,7 +31,7 @@ int main(void)
 	return 0;
 }
 */
-void random_search(double **distance_matrix, int *solution, int size, int time_mili)
+void random_search(double **distance_matrix, int *solution, int size, int time_mili, long *iterations_done)
 {
 	long start_mili, end_mili;
 	struct timeval timecheck;
@@ -61,7 +61,7 @@ void random_search(double **distance_matrix, int *solution, int size, int time_m
 		counter++;
 
 	}
-	
+	*iterations_done = counter;
 	//printf("There were %d iterations\n", counter);
 	//printf("Best fitness so far: %5.2lf\n", fitness(solution, distance_matrix, size));
 

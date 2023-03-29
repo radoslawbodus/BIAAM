@@ -20,7 +20,7 @@ void print_1d_array(int *arr, int size);
 void reverse_route(int *start, int *end);
 
 // Saves solution to csv
-void save_as_csv(int *solution, double fitness_value, int size, char *name, int flag);
+void save_as_csv(int *solution, double fitness_value, int size, char *name, int flag, long time, long iterations_done);
 
 // Deallocate memory
 void deallocate_memory_2d(double **arr, int n);

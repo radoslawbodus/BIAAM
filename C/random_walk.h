@@ -2,5 +2,5 @@
 double calculate_shortened_fitness(int *solution, int i, int j, double **distance_matrix, int size, double previous_fitness);
 
 // Random walk - change randomly two nodes and pick the best result
-void random_walk(double **distance_matrix, int *solution, int size, int time_mili);
+void random_walk(double **distance_matrix, int *solution, int size, int time_mili, long *iterations_done);
 
