@@ -104,7 +104,7 @@ void save_as_csv(int *solution, int size, char *name, int flag)
 }
 */
 
-void greedy_local_search(double **distance_matrix, int *solution, int size, long *iterations_done)
+void greedy_local_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done)
 {
 	long start_mili, end_mili;
 	struct timeval timecheck;
@@ -112,6 +112,7 @@ void greedy_local_search(double **distance_matrix, int *solution, int size, long
 	copy_solution(random_solution, solution, size);
 	
 	int counter = 0;
+	int count_evaluations = 0;
 	double current_fitness = fitness(random_solution, distance_matrix, size);
 	double previous_fitness = current_fitness;
 	double best_fitness = current_fitness;
@@ -150,6 +151,7 @@ void greedy_local_search(double **distance_matrix, int *solution, int size, long
 					type = 0;
 					break;
 				}
+				count_evaluations++;
 				if ((current_delta = delta_two_edge_exchange(solution, distance_matrix, size, i, j)) < best_delta)
 {
 					best_delta = current_delta;
@@ -159,6 +161,7 @@ void greedy_local_search(double **distance_matrix, int *solution, int size, long
 					//printf("Nice\n");
 					break;
 				}
+				count_evaluations++;
 
 			}
 			if (best_delta < 0)
@@ -181,8 +184,8 @@ void greedy_local_search(double **distance_matrix, int *solution, int size, long
 
 	}
 	
-	*iterations_done = counter;
-
+	*iterations_done = counter; // count_evaluations
+	*evaluations_done = count_evaluations;
 	//printf("There were %d iterations\n", counter);
 	double best_solution_found = fitness(solution, distance_matrix, size);
 

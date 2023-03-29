@@ -125,6 +125,8 @@ void one_instance_tsp(char *file_name, int iterations)
         struct timeval timecheck;
 	long time_micro_greedy, time_micro_steepest;
 	long iterations_done_rw, iterations_done_rs, iterations_done_steep, iterations_done_greed;
+	long evaluations_done_greed, evaluations_done_steep;
+	double fitness_initial_solution = 0;
 	srand(time(NULL));
 	
 	for (i = 0; i < iterations; i++)
@@ -136,24 +138,29 @@ void one_instance_tsp(char *file_name, int iterations)
 		flag = 0;
 		shuffle(solution, size);
 		
+		
+		fitness_initial_solution = fitness(solution, distance_matrix_cities, size);
+		
 		gettimeofday(&timecheck, NULL);
 	        start_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
 		
-		greedy_local_search(distance_matrix_cities, solution, size, &iterations_done_greed);
+		greedy_local_search(distance_matrix_cities, solution, size, &iterations_done_greed, &evaluations_done_greed);
 	
 		gettimeofday(&timecheck, NULL);
 	        end_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
 			
 		time_micro_greedy = end_micro - start_micro;
 		
-		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, greedy_save, flag, time_micro_greedy, iterations_done_greed);
+		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, greedy_save, flag, time_micro_greedy, iterations_done_greed, evaluations_done_greed, fitness_initial_solution);
 
 		shuffle(solution, size);
 
+		fitness_initial_solution = fitness(solution, distance_matrix_cities, size);
+		
 		gettimeofday(&timecheck, NULL);
 	        start_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
 		
-		steepest_local_search(distance_matrix_cities, solution, size, &iterations_done_steep);
+		steepest_local_search(distance_matrix_cities, solution, size, &iterations_done_steep, &evaluations_done_steep);
 		
 		gettimeofday(&timecheck, NULL);
 	        end_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
@@ -162,17 +169,22 @@ void one_instance_tsp(char *file_name, int iterations)
 		
 		time_mili = time_micro_steepest / 1000;
 
-		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, steepest_save, flag, time_micro_steepest, iterations_done_steep);
-
-		shuffle(solution, size);
-
-		random_walk(distance_matrix_cities, solution, size, time_mili, &iterations_done_rw);
-		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, random_walk_save, flag, time_micro_steepest, iterations_done_rw);
+		
+		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, steepest_save, flag, time_micro_steepest, iterations_done_steep, evaluations_done_steep, fitness_initial_solution);
 
 		shuffle(solution, size);
 		
+		fitness_initial_solution = fitness(solution, distance_matrix_cities, size);
+		
+		random_walk(distance_matrix_cities, solution, size, time_mili, &iterations_done_rw);
+		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, random_walk_save, flag, time_micro_steepest, iterations_done_rw, iterations_done_rw, fitness_initial_solution);
+
+		shuffle(solution, size);
+		
+		fitness_initial_solution = fitness(solution, distance_matrix_cities, size);
+		
 		random_search(distance_matrix_cities, solution, size, time_mili, &iterations_done_rs);
-		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, random_search_save, flag, time_micro_steepest, iterations_done_rs);
+		save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, random_search_save, flag, time_micro_steepest, iterations_done_rs, iterations_done_rs, fitness_initial_solution);
 
 	}
 
