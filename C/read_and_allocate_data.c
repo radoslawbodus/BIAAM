@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "read_and_allocate_data.h"
-//double **coordinates_cities(char *);
-//double **initialize_coordinates(int dimensions);
-//void print_array_2d(double **, int dimensions);
 
 /*
 int main(int argc, char *argv[])
@@ -54,10 +51,6 @@ double **coordinates_cities(char * file_name, int *size, int *flag)
 	
 	read = fscanf(fp, "NAME :%s \n", name);
 	
-	/*
-	if (read)
-		printf("name is: %s\n", name);
-	*/
 
 	while ((read = fscanf(fp, "DIMENSION : %d \n", &dimensions)) == 0)
 	{
@@ -131,11 +124,8 @@ double **coordinates_cities(char * file_name, int *size, int *flag)
 			
 		printf("Format not supported (yet) :(read: %d\n", successful_reads);
 		*flag = 0;
-		//fclose(fp);
-		//exit(EXIT_FAILURE);
 	}
 	
-	//print_array_2d(coordinates, dimensions);
 
 	fclose(fp);
 	

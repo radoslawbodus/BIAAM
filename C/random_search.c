@@ -8,7 +8,6 @@
 #include "random_search.h"
 #include "utils.h"
 
-//void random_search(double **distance_matrix, int *solution, int size);
 
 /*
 int main(void)
@@ -50,46 +49,17 @@ void random_search(double **distance_matrix, int *solution, int size, int time_m
 			break;
 		
 
-		//random_solution = random_permutation(size);
 		shuffle(random_solution, size);
 		if (fitness(random_solution, distance_matrix, size) < fitness(solution, distance_matrix, size))
 		{
 			copy_solution(solution, random_solution, size);
-			//printf("Best fitness so far: %5.2lf\n", fitness(solution, distance_matrix, size));
 		}
-		//free(random_solution);
 		counter++;
 
 	}
 	*iterations_done = counter;
-	//printf("There were %d iterations\n", counter);
-	//printf("Best fitness so far: %5.2lf\n", fitness(solution, distance_matrix, size));
 	free(random_solution);
 	return;
 }
 
-/*
-double fitness(int *solution, double **distance_matrix, int size)
-{
-	double fitness_value = 0;
-	int i;
 
-	for (i = 0; i < size - 1; i++)
-	{
-		fitness_value += distance_matrix[solution[i]][solution[i+1]];
-	}
-	fitness_value += distance_matrix[solution[size - 1]][solution[0]];
-
-	return fitness_value;
-}
-	
-void copy_solution(int *target, int *source, int size)
-{
-	int i;
-
-	for (i = 0; i < size; i++)
-		target[i] = source[i];
-
-	return;
-}
-*/		

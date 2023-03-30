@@ -61,8 +61,7 @@ double delta_two_nodes_exchange(int *solution, int i, int j, double **distance_m
                             distance_matrix[ solution[j] ][ solution[jp1] ]);
 
         if  (i == 0 && j == size - 1)
-        {
-                difference_plus += (distance_matrix[ solution[jm1] ][solution[i]] +
+        {                   difference_plus += (distance_matrix[ solution[jm1] ][solution[i]] +
                             distance_matrix[solution[i]][ solution[j] ] +
                             distance_matrix[ solution[i] ][ solution[j] ] +
                             distance_matrix[ solution[j] ][ solution[ip1]]);
@@ -117,7 +116,6 @@ void reverse_route(int *start, int *end)
         int i = 0;
         double temp;
         int middle = (end - start + 1) / 2;
-        //printf("Middle: %d  ", middle);
         while (i < middle)
         {
                 temp = *(start + i);
