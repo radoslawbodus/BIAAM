@@ -1,3 +1,4 @@
+// nearest_neighbor.c - Implements nearest neighbor algorithm for tsp
 #include <stdio.h>
 #include "utils.h"
 #include "nearest_neighbor.h"

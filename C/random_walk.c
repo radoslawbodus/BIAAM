@@ -1,3 +1,4 @@
+// random_walk.c - Random walk algorithm for tsp
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>

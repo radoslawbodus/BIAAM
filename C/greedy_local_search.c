@@ -1,3 +1,4 @@
+// greedy_local_search.c - Implementation of greedy local search
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>

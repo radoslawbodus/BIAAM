@@ -1,15 +1,16 @@
 # BIAAM
 
-## Algorithms written in C and C++ (possibly with Rust in near future)
-Let's go 
+## Algorithms written in C
 
 Compile command:
-gcc -O3 run_experiments.c create_distance_matrix.c random_permutation.c read_and_allocate_data.c steepest_local_search.c greedy_local_search.c random_walk.c random_search.c utils.c -lm -o run_experiments.out
+gcc -O3 run\_experiments.c create\_distance\_matrix.c random\_permutation.c read\_and\_allocate\_data.c steepest\_local\_search.c greedy\_local\_search.c random\_walk.c random\_search.c nearest\_neighbor.c utils.c -lm -o run\_experiments.out
 
+Command use:
+./run\_experiments.out i[number greater than 0 which will indicate how many iterations of the algorithms are to be done] instance.tsp [instances of tsp]
 
-Use Command:
-./run_experiments.out burma14.tsp (the argument is the instance of tsp, only one argument allowed right now)
+Sample use:
+./run\_experiments.out 10 burm14.tsp a280.tsp
 
+This command will produce n (the number of instances with EUC\_2D type of distance) by 5 (5 algorithms) .csv files storing the tours and additional information in form of initial random solution, best found solution, time taken in microseconds, numbers of steps, numbers of evaluations. Tours and any additional information was obtained by running the given algorithms. 
 
-Only TSP instances that have coordinates of the cities are allowed so no matricies (at least for now).
 

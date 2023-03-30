@@ -1,3 +1,4 @@
+// create_distance_matric.c - Implementing logic to create matrix that represents the distance between ith and jth city. 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -26,7 +27,6 @@ double **distance_matrix(double **cities, int dimensions)
 	double ** distance_matrix_cities;
 	
 	distance_matrix_cities = initialize_matrix(dimensions);
-	clock_t start = clock();
 	for (i = 0; i < dimensions; i++)
 	{
 		distance_matrix_cities[i][i] = 0.0;
@@ -40,8 +40,6 @@ double **distance_matrix(double **cities, int dimensions)
 		}
 	
 	}
-	clock_t end = clock();
-	//printf("%lf\n", (double)(end - start) / CLOCKS_PER_SEC * 1000);
 
 	
 	return distance_matrix_cities;
@@ -66,11 +64,6 @@ double **initialize_matrix(int dimensions)
                 distance_matrix_cities[i] = (double *)malloc(sizeof(double) * dimensions);
         }
 	
-	/*
-	for (i = 0; i < dimensions; i++)
-		for (j = 0; j < dimensions; j++)
-			distance_matrix_cities[i][j] = 0;
-	*/
 	
         return distance_matrix_cities;
 }

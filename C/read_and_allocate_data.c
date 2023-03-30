@@ -1,3 +1,4 @@
+// read_and_allocate_data.c - Read the EUC_2D form of data and save its coordinates
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -62,7 +63,6 @@ double **coordinates_cities(char * file_name, int *size, int *flag)
 
 	if (read)
 	{
-		//printf("Dimension: %d\n", dimensions);
 		coordinates = initialize_coordinates(dimensions);
 	}
 	else
@@ -91,6 +91,7 @@ double **coordinates_cities(char * file_name, int *size, int *flag)
 		line_length = strlen(line);
 		if (line[line_length-1] == '\n')
 		{
+			// Second dummy might not be necessary, though it was useful for testing for reading other formats types, though we haven't have the time to do that 
 			if ((read = sscanf(line, "%d %lf %lf %d", &dummy, &coordinates[i][0], &coordinates[i][1], &dummy2) >= 3))
 			{
 				current = read;
@@ -116,7 +117,6 @@ double **coordinates_cities(char * file_name, int *size, int *flag)
 		}
 	}
 
-	//printf("successful reads: %d\n", successful_reads);
 	*flag = 1;
 
 	if (successful_reads != dimensions)

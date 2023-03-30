@@ -1,3 +1,4 @@
+// utils.c - Implementation of useful functions that repeat themselves across algorithms
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

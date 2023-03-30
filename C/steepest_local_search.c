@@ -1,3 +1,4 @@
+// steepest_local_search.c - Implementation of the steepest local search
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
