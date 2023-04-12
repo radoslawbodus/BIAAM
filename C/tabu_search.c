@@ -4,6 +4,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <math.h>
+#include <string.h>
 #include "steepest_local_search.h"
 #include "random_permutation.h"
 #include "read_and_allocate_data.h"
@@ -17,11 +18,17 @@ double **create_candidate_moves(int candidates);
 double **create_candidate_matrix(int size);
 void prepare_candidate_moves(double **candidate_moves, int candidates);
 void recreate_candidate_moves(double **candidate_list, double **distance_matrix, double **candidate_matrix, int *solution, int candidates, int size);
-void tabu_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done);
-
-int main(void)
+void tabu_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done, int tenure, int candidats);
+void experiment_one_instance(char *file_name, int iterations, int *tenure, int *candidates_sizes, int size_tenures, int size_candidates);
+int main(int argc, char *argv[])
 {
-	char *file_path = "a280.tsp";
+	if (argc < 3)
+        {
+                printf("Too little arguments\n");
+                exit(1);
+        }
+
+	char *file_path = argv[2];
 
 	int *solution;
 	int size, flag;
@@ -32,13 +39,13 @@ int main(void)
         double **distance_matrix_cities = distance_matrix(coordinates_cities_array, size);
         
         //print_matrix(distance_matrix_cities, 532);
-        srand(123);      
+        srand(time(NULL));      
         solution = random_permutation(size);
         steepest_local_search(distance_matrix_cities, solution, size, &iterations_done, &evaluations_done);
 
 	printf("Fitness initial solution: %lf\n", fitness(solution, distance_matrix_cities, size));
         clock_t start = clock();
-        tabu_search(distance_matrix_cities, solution, size, &iterations_done, &evaluations_done);
+        tabu_search(distance_matrix_cities, solution, size, &iterations_done, &evaluations_done, 20, 10);
         clock_t end = clock();
 
         printf("It took %lf seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
@@ -47,16 +54,122 @@ int main(void)
         
         printf("Final fitness: %lf, iterations done: %ld, evaluations done: %ld\n", final_fitness, iterations_done, evaluations_done);
 	
+	int iterations = atoi(argv[1]);
+        for (int i = 2; i < argc; i++)
+        {
+
+                char *file_path = argv[i];
+                double **coordinates_cities_array = coordinates_cities(file_path, &size, &flag);
+                int tenures[] = {size/10, size/5, size/2};
+                int candidate_sizes[] = {size/10, size/5, size/2};
+
+
+                int size_tenures = sizeof(tenures) / sizeof(int);
+                int size_candidates = sizeof(candidate_sizes) / sizeof(int);
+
+                experiment_one_instance(file_path, iterations, tenures, candidate_sizes, size_tenures, size_candidates);
+        }
+
+
 	return 0;
 }
 
-// Write a 
-
-void tabu_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done)
+void experiment_one_instance(char *file_name, int iterations, int *tenures, int *candidate_sizes, int size_tenures, int size_candidates)
 {
-	long start_mili, end_mili;
-	struct timeval timecheck;
+	char *file_path = file_name;
+        char copy_file_path[strlen(file_path) + 1];
+        strcpy(copy_file_path, file_path);
+        copy_file_path[strlen(copy_file_path) - 4] = 0;
+
+        long start_micro, end_micro;
+        long time_micro_total;
+        struct timeval timecheck;
+
+        double fitness_initial_solution = 0;
+        long iterations_done, evaluations_done;
+        int i, size;
+        int flag = 0;
+        int time_mili;
+        int flag_euc2d;
+        double **coordinates_cities_array = coordinates_cities(file_path, &size, &flag_euc2d);
+        if (flag_euc2d == 0)
+        {
+                deallocate_memory_2d(coordinates_cities_array, size);
+                return;
+        }
+
+	double **distance_matrix_cities = distance_matrix(coordinates_cities_array, size);
+
+        int *solution = random_permutation(size);
+
+        int string_length = strlen(file_path);
+
+        char add_to_name[128];
+        double a = INFINITY;
+        int counter = 0;
 	
+	for (int x = 0; x < size_tenures; x++)
+	{
+		for (int y = 0; y < size_candidates; y++)
+		{
+			char tabu_search_save[128];
+                        strcpy(tabu_search_save, copy_file_path);
+                       	// After the experiments comment out the next two lines
+                      	sprintf(add_to_name, "_TS_tenure_%d_candidates_%d.csv", tenures[x], candidate_sizes[y]);
+                     	strcat(tabu_search_save, add_to_name);
+                    	// After the experiments uncomment the next line
+                      	// strcat(tabu_search_save, "_TS.csv");
+                      	puts(tabu_search_save);
+
+			for (int z = 0; z < iterations; z++)
+                        {
+                              	counter++;
+
+                              	shuffle(solution, size);
+                               
+				steepest_local_search(distance_matrix_cities, solution, size, &iterations_done, &evaluations_done);
+                                      
+				fitness_initial_solution = fitness(solution, distance_matrix_cities, size);
+				gettimeofday(&timecheck, NULL);
+                                  
+			  	start_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
+                                        
+				clock_t start = clock();                
+				tabu_search(distance_matrix_cities, solution, size, &iterations_done, &evaluations_done, tenures[x], candidate_sizes[y]);
+				clock_t end = clock();
+
+                                
+				gettimeofday(&timecheck, NULL);
+                        
+				end_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
+                
+				time_micro_total = end_micro - start_micro;
+        
+				printf("It took %lf seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
+
+
+				double final_fitness = fitness(solution, distance_matrix_cities, size);
+
+
+				printf("Initial fitness: %lf; Final fitness: %lf, iterations done: %ld, evaluations done: %ld\n\n\n", fitness_initial_solution, final_fitness, iterations_done, evaluations_done);
+
+
+				save_as_csv(solution, fitness(solution, distance_matrix_cities, size), size, tabu_search_save, flag, time_micro_total, iterations_done, evaluations_done, fitness_initial_solution);
+                                }
+		}
+	}
+
+
+
+}
+
+
+void tabu_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done, int tenure, int candidates)
+{
+	long start_micro, end_micro;
+        long time_micro_total;
+        struct timeval timecheck;
+
 	int counter = 0;
 	int count_evaluations = 0;
 	double current_fitness = fitness(solution, distance_matrix, size);
@@ -68,11 +181,10 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 	int i, j;
 	int type = 0;
 
-	int tabu_tenure = 25;
+	int tabu_tenure = tenure;
 	int **tabu_matrix = initialize_tabu_matrix(size);
 	int **tabu_dict = initialize_tabu_dict(size);
 
-	int candidates = 10;
 
 	double **candidate_moves = create_candidate_moves(candidates);
 	double **candidate_matrix = create_candidate_matrix(size);
@@ -84,6 +196,10 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 	int index;
 	while (1)
 	{
+
+		gettimeofday(&timecheck, NULL);     
+		start_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
+
 		counter++;
 		index = -1;
 		double best_delta = INFINITY;
@@ -93,6 +209,9 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 
 		for (int i = 0; i < candidates; i++)
 		{
+
+			count_evaluations+=2;
+			
 			int proper_i = (int) candidate_moves[i][0];
 			int proper_j = (int) candidate_moves[i][1];
 			int tabu_i = proper_i, tabu_j = proper_j;
@@ -126,10 +245,6 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 				type = 0;
 				index = i;
 			}
-			else if ((tabu_matrix[tabu_i][tabu_j] != 0) && ((current_fitness + current_delta) < best_fitness))
-			{
-				//printf("Nice; %lf / %lf\n", current_fitness + current_delta, best_fitness);
-			}
 			if (((((current_delta = delta_two_edge_exchange(solution, distance_matrix, size, proper_i, proper_j)) < best_delta) && (tabu_matrix[tabu_i][tabu_j] == 0)) || ((1) && (tabu_matrix[tabu_i][tabu_j] != 0) && ((current_fitness + current_delta) < best_fitness))) && (abs(proper_i - proper_j) != 1) )
 			{
 				//printf("XD1\n");	
@@ -143,7 +258,11 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 		}
 		
 
-		
+		gettimeofday(&timecheck, NULL);
+		end_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
+		time_micro_total = end_micro - start_micro;
+		//printf("First time in micro_sec: %ld\n", time_micro_total);
+
 		reduce_tenure(tabu_matrix, candidate_moves, size, candidates);
                 if (index != -1)
 		{
@@ -178,7 +297,7 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 			{
 				best_fitness = current_fitness;
 				copy_solution(best_solution, solution, size);
-				printf("XDDDD; Fitness: %lf\n", best_fitness);
+				//printf("XDDDD; Fitness: %lf\n", best_fitness);
 			}
 		}
 		else
@@ -191,10 +310,17 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 		
 		recreate_tabu_dict(tabu_dict, solution, size);
 		
-		if (counter % 10 == 0)
+		if (counter % tenure == 0)
 			recreate_candidate_moves(candidate_moves, distance_matrix, candidate_matrix, solution, candidates, size);
 		if (counter > 10000)
 			break;
+	
+
+		
+		gettimeofday(&timecheck, NULL);
+		end_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
+		time_micro_total = end_micro - start_micro;
+		//printf("End time in micro_sec: %ld\n", time_micro_total);
 
 	}
 	*iterations_done = counter; // count_evaluations
