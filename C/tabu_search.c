@@ -4,19 +4,20 @@
 #include <sys/time.h>
 #include <time.h>
 #include <math.h>
+#include "steepest_local_search.h"
 #include "random_permutation.h"
 #include "read_and_allocate_data.h"
 #include "create_distance_matrix.h"
 #include "utils.h"
 
 
-void reduce_tenure(double **tabu_matrix, double **candidate_moves, int size, int candidates);
+void reduce_tenure(int **tabu_matrix, double **candidate_moves, int size, int candidates);
 void recreate_tabu_dict(int **tabu_dict, int *solution, int size);
 double **create_candidate_moves(int candidates);
 double **create_candidate_matrix(int size);
 void prepare_candidate_moves(double **candidate_moves, int candidates);
 void recreate_candidate_moves(double **candidate_list, double **distance_matrix, double **candidate_matrix, int *solution, int candidates, int size);
-void steepest_local_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done);
+void tabu_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done);
 
 int main(void)
 {
@@ -33,9 +34,11 @@ int main(void)
         //print_matrix(distance_matrix_cities, 532);
         srand(123);      
         solution = random_permutation(size);
-        
-        clock_t start = clock();
         steepest_local_search(distance_matrix_cities, solution, size, &iterations_done, &evaluations_done);
+
+	printf("Fitness initial solution: %lf\n", fitness(solution, distance_matrix_cities, size));
+        clock_t start = clock();
+        tabu_search(distance_matrix_cities, solution, size, &iterations_done, &evaluations_done);
         clock_t end = clock();
 
         printf("It took %lf seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
@@ -49,7 +52,7 @@ int main(void)
 
 // Write a 
 
-void steepest_local_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done)
+void tabu_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done)
 {
 	long start_mili, end_mili;
 	struct timeval timecheck;
@@ -59,6 +62,9 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
 	double current_fitness = fitness(solution, distance_matrix, size);
 	double previous_fitness = current_fitness;
 	double best_fitness = current_fitness;
+	int *best_solution = random_permutation(size);
+       	copy_solution(best_solution, solution, size);
+	
 	int i, j;
 	int type = 0;
 
@@ -89,6 +95,15 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
 		{
 			int proper_i = (int) candidate_moves[i][0];
 			int proper_j = (int) candidate_moves[i][1];
+			int tabu_i = proper_i, tabu_j = proper_j;
+			
+			if (tabu_i > tabu_j)
+                        {
+                                int temp = tabu_i;
+                                tabu_i = tabu_j;
+                                tabu_j = temp;
+                        }
+
 			proper_i = tabu_dict[proper_i][1];
 			proper_j = tabu_dict[proper_j][1];
 
@@ -100,20 +115,25 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
 			}
 			
 
-			if (((current_delta = delta_two_nodes_exchange(solution, proper_i, proper_j, distance_matrix, size)) < best_delta) && ())
+			if ((((current_delta = delta_two_nodes_exchange(solution, proper_i, proper_j, distance_matrix, size)) < best_delta) && (tabu_matrix[tabu_i][tabu_j] == 0) ) || ((1) && (tabu_matrix[tabu_i][tabu_j] != 0) && ((current_fitness + current_delta) < best_fitness)))
 			{
-				printf("XD\n");
-				printf("index: %d; i: %d (%d); j: %d (%d); best_delta: %lf\n", i, proper_i, (int) candidate_moves[i][0], proper_j, (int) candidate_moves[i][1], current_delta);
+
+				//printf("XD; %lf\n", current_fitness + current_delta);
+				//printf("index: %d; i: %d (%d); j: %d (%d); best_delta: %lf\n", i, proper_i, (int) candidate_moves[i][0], proper_j, (int) candidate_moves[i][1], current_delta);
 				best_delta = current_delta;
 				best_i = proper_i;
 				best_j = proper_j;
 				type = 0;
 				index = i;
 			}
-			if (((current_delta = delta_two_edge_exchange(solution, distance_matrix, size, proper_i, proper_j)) < best_delta))
+			else if ((tabu_matrix[tabu_i][tabu_j] != 0) && ((current_fitness + current_delta) < best_fitness))
 			{
-				printf("XD1\n");	
-				printf("index: %d; i: %d (%d); j: %d (%d); best_delta: %lf\n", i, proper_i, (int) candidate_moves[i][0], proper_j, (int) candidate_moves[i][1], current_delta);
+				//printf("Nice; %lf / %lf\n", current_fitness + current_delta, best_fitness);
+			}
+			if (((((current_delta = delta_two_edge_exchange(solution, distance_matrix, size, proper_i, proper_j)) < best_delta) && (tabu_matrix[tabu_i][tabu_j] == 0)) || ((1) && (tabu_matrix[tabu_i][tabu_j] != 0) && ((current_fitness + current_delta) < best_fitness))) && (abs(proper_i - proper_j) != 1) )
+			{
+				//printf("XD1\n");	
+				//printf("index: %d; i: %d (%d); j: %d (%d); best_delta: %lf\n", i, proper_i, (int) candidate_moves[i][0], proper_j, (int) candidate_moves[i][1], current_delta);
 				best_delta = current_delta;
 				best_i = proper_i;
 				best_j = proper_j;
@@ -124,6 +144,7 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
 		
 
 		
+		reduce_tenure(tabu_matrix, candidate_moves, size, candidates);
                 if (index != -1)
 		{
 			if (type == 0)
@@ -146,37 +167,48 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
 					best_i = best_j;
 					best_j = temp;
 				}
-				printf("XDDDDDDDDDDDDDDDDDDD\n");
+				//printf("XDDDDDDDDDDDDDDDDDDD\n");
 				tabu_matrix[(int) candidate_moves[index][0]][(int) candidate_moves[index][1]] = tabu_tenure;
 
 				reverse_route(&solution[best_i+1], &solution[best_j]);
 			}
+
+			current_fitness += best_delta;
+			if (current_fitness < best_fitness)
+			{
+				best_fitness = current_fitness;
+				copy_solution(best_solution, solution, size);
+				printf("XDDDD; Fitness: %lf\n", best_fitness);
+			}
 		}
 		else
 		{
-			printf("WTF");
+			int a = 0;
+			//printf("WTF");
 		}
 		
-		printf("Counter: %d; Fitness: %lf; index: %d best delta: %lf\n", counter, fitness(solution, distance_matrix, size), index, best_delta);	
+		//printf("Counter: %d; Fitness: %lf (%lf); index: %d best delta: %lf\n", counter, fitness(solution, distance_matrix, size), current_fitness, index, best_delta);	
 		
 		recreate_tabu_dict(tabu_dict, solution, size);
 		
 		if (counter % 10 == 0)
 			recreate_candidate_moves(candidate_moves, distance_matrix, candidate_matrix, solution, candidates, size);
-		if (counter > 1000)
+		if (counter > 10000)
 			break;
 
 	}
 	*iterations_done = counter; // count_evaluations
 	*evaluations_done = count_evaluations;
 	
+	copy_solution(solution, best_solution, size);
+
 	double best_solution_found = fitness(solution, distance_matrix, size);
 
 
 	return;
 }
 
-void reduce_tenure(double **tabu_matrix, double **candidate_moves, int size, int candidates)
+void reduce_tenure(int **tabu_matrix, double **candidate_moves, int size, int candidates)
 {
 	
 	int i;
