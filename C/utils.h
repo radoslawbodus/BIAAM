@@ -24,3 +24,7 @@ void save_as_csv(int *solution, double fitness_value, int size, char *name, int 
 
 // Deallocate memory
 void deallocate_memory_2d(double **arr, int n);
+
+// Deallocate tabu matrix
+void deallocate_tabu_matrix(int **tabu_arr, int n);
+

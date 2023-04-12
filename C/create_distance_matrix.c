@@ -62,11 +62,51 @@ double **initialize_matrix(int dimensions)
         for (i = 0; i < dimensions; i++)
         {
                 distance_matrix_cities[i] = (double *)malloc(sizeof(double) * dimensions);
+		distance_matrix_cities[i][0] = 0;
         }
 	
 	
         return distance_matrix_cities;
 }
+
+int **initialize_tabu_matrix(int dimensions)
+{
+
+        int **distance_matrix_cities;
+        int i, j;
+
+        distance_matrix_cities = (int **)malloc(sizeof(int *) * dimensions);
+
+        for (i = 0; i < dimensions; i++)
+        {
+                distance_matrix_cities[i] = (int *)malloc(sizeof(int) * dimensions);
+                distance_matrix_cities[i][0] = 0;
+        }
+
+
+        return distance_matrix_cities;
+}
+
+// This is a pseudo dict
+int **initialize_tabu_dict(int dimensions)
+{
+
+        int **tabu_dict;
+        int i, j;
+
+        tabu_dict = (int **)malloc(sizeof(int *) * dimensions);
+
+        for (i = 0; i < dimensions; i++)
+        {
+                tabu_dict[i] = (int *)malloc(sizeof(int) * 2);
+                tabu_dict[i][0] = i;
+        }
+
+
+        return tabu_dict;
+}
+
+
 
 void print_matrix(double **arr, int dimensions)
 {

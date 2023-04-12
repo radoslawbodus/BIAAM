@@ -178,4 +178,15 @@ void deallocate_memory_2d(double **arr, int n)
 	return;
 }
 
+void deallocate_tabu_matrix(int **tabu_arr, int n)
+{
+	int i;
+        for (i = 0; i < n; i++)
+                free(tabu_arr[i]);
+        free(tabu_arr);
+
+        return;
+}
+
+
 

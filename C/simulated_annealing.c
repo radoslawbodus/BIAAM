@@ -72,9 +72,9 @@ int main(int argc, char *argv[])
 
 		char *file_path = argv[i];
 		double **coordinates_cities_array = coordinates_cities(file_path, &size, &flag);
-		double alphas[] = {0.80, 0.9, 0.95};
-	        double acceptance_rates[] = {0.95, 0.85, 0.75, 0.5};
-        	int markov_length[] = {size*0.02, size*0.05, size*0.1, size*0.2};
+		double alphas[] = {0.80, 0.95};
+	        double acceptance_rates[] = {0.95};
+        	int markov_length[] = {size*0.02, size*0.2};
 
 	
 	        int size_alphas = sizeof(alphas) / sizeof(double);
