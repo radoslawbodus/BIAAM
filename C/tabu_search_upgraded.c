@@ -12,7 +12,7 @@
 #include "utils.h"
 
 
-void reduce_tenure(int **tabu_matrix, double **candidate_moves, int size, int candidates);
+void reduce_tenure(int **tabu_matrix, int **tabu_list, int size, int candidates);
 void recreate_tabu_dict(int **tabu_dict, int *solution, int size);
 double **create_candidate_moves(int candidates);
 double **create_candidate_matrix(int size);
@@ -20,6 +20,8 @@ void prepare_candidate_moves(double **candidate_moves, int candidates);
 void recreate_candidate_moves(double **candidate_list, double **distance_matrix, double **candidate_matrix, int *solution, int candidates, int size);
 void tabu_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done, int tenure, int candidats);
 void experiment_one_instance(char *file_name, int iterations, int *tenure, int *candidates_sizes, int size_tenures, int size_candidates);
+int **create_tabu_list(int size);
+
 
 int main(int argc, char *argv[])
 {
@@ -40,6 +42,7 @@ int main(int argc, char *argv[])
         double **distance_matrix_cities = distance_matrix(coordinates_cities_array, size);
         
         //print_matrix(distance_matrix_cities, 532);
+	long tt = time(NULL);
         srand(123);      
         solution = random_permutation(size);
         steepest_local_search(distance_matrix_cities, solution, size, &iterations_done, &evaluations_done);
@@ -61,7 +64,7 @@ int main(int argc, char *argv[])
 
                 char *file_path = argv[i];
                 double **coordinates_cities_array = coordinates_cities(file_path, &size, &flag);
-                int tenures[] = {size/10};
+                int tenures[] = {size/2, size, size*2};
                 int candidate_sizes[] = {size/10};
 
 
@@ -70,7 +73,6 @@ int main(int argc, char *argv[])
 
                 experiment_one_instance(file_path, iterations, tenures, candidate_sizes, size_tenures, size_candidates);
         }
-
 
 	return 0;
 }
@@ -184,21 +186,23 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 
 	int tabu_tenure = tenure;
 	int **tabu_matrix = initialize_tabu_matrix(size);
-	int **tabu_dict = initialize_tabu_dict(size);
+	//int **tabu_dict = initialize_tabu_dict(size);
 
 	candidates = tenure;
-	double **candidate_moves = create_candidate_moves(candidates);
-	double **candidate_matrix = create_candidate_matrix(size);
+	int **tabu_list = create_tabu_list(candidates);
 
-	recreate_candidate_moves(candidate_moves, distance_matrix, candidate_matrix, solution, candidates, size);
+	//double **candidate_moves = create_candidate_moves(candidates);
+	//double **candidate_matrix = create_candidate_matrix(size);
 
-	recreate_tabu_dict(tabu_dict, solution, size);
+	//recreate_candidate_moves(candidate_moves, distance_matrix, candidate_matrix, solution, candidates, size);
+
+	//recreate_tabu_dict(tabu_dict, solution, size);
 	
 	int index;
+	int add_to_tabu = 0;
+	int tabu_rotation = 0;
 	int last_upgrade = 0;
-        int max_no_upgrades = size * 50;
-	double best_among_candidates = -INFINITY;
-	//printf("Max No Upgrades: %d\n", max_no_upgrades);
+	int max_no_upgrades = size * 10;
 	while (1)
 	{
 
@@ -206,62 +210,49 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 		start_micro = (long) timecheck.tv_sec * 1000000 + (long) timecheck.tv_usec;
 
 		counter++;
+
+		
 		index = -1;
 		double best_delta = INFINITY;
 		int best_i, best_j;
 		double current_delta = 0;
-	
-		best_among_candidates = -INFINITY;
 
-		for (int i = 0; i < candidates; i++)
+		
+		for (int i = 0; i < size - 1; i++)
 		{
-
-			count_evaluations+=2;
-			
-			int proper_i = (int) candidate_moves[i][0];
-			int proper_j = (int) candidate_moves[i][1];
-			int tabu_i = proper_i, tabu_j = proper_j;
-			
-			if (tabu_i > tabu_j)
-                        {
-                                int temp = tabu_i;
-                                tabu_i = tabu_j;
-                                tabu_j = temp;
-                        }
-
-			proper_i = tabu_dict[proper_i][1];
-			proper_j = tabu_dict[proper_j][1];
-
-			if (proper_i > proper_j)
-			{
-				int temp = proper_i;
-				proper_i = proper_j;
-				proper_j = temp;
-			}
-			
-
-			if ((((current_delta = delta_two_nodes_exchange(solution, proper_i, proper_j, distance_matrix, size)) < best_delta) && (tabu_matrix[tabu_i][tabu_j] == 0) ) || ((1) && (tabu_matrix[tabu_i][tabu_j] != 0) && ((current_fitness + current_delta) < best_fitness)))
+			for (int j = i + 1; j < size; j++)
 			{
 
-				//printf("XD; %lf\n", current_fitness + current_delta);
-				//printf("index: %d; i: %d (%d); j: %d (%d); best_delta: %lf\n", i, proper_i, (int) candidate_moves[i][0], proper_j, (int) candidate_moves[i][1], current_delta);
-				best_delta = current_delta;
-				best_i = proper_i;
-				best_j = proper_j;
-				type = 0;
-				index = i;
-			}
-			if (((((current_delta = delta_two_edge_exchange(solution, distance_matrix, size, proper_i, proper_j)) < best_delta) && (tabu_matrix[tabu_i][tabu_j] == 0)) || ((1) && (tabu_matrix[tabu_i][tabu_j] != 0) && ((current_fitness + current_delta) < best_fitness))) && (abs(proper_i - proper_j) != 1) )
-			{
-				//printf("XD1\n");	
-				//printf("index: %d; i: %d (%d); j: %d (%d); best_delta: %lf\n", i, proper_i, (int) candidate_moves[i][0], proper_j, (int) candidate_moves[i][1], current_delta);
-				best_delta = current_delta;
-				best_i = proper_i;
-				best_j = proper_j;
-				type = 1;
-				index = i;
+				count_evaluations+=2;
+				if ((((current_delta = delta_two_nodes_exchange(solution, i, j, distance_matrix, size)) < best_delta) && (tabu_matrix[solution[i]][solution[j]] == 0) ) || ((1) && (tabu_matrix[solution[i]][solution[j]] != 0) && ((current_fitness + current_delta) < best_fitness - 0.001)))
+				{
+					if ((tabu_matrix[solution[i]][solution[j]] != 0) && ((current_fitness + current_delta) < best_fitness - 0.001))
+						add_to_tabu = 0;
+					else
+						add_to_tabu = 1;
+
+					best_delta = current_delta;
+        	                        best_i = i;
+	                                best_j = j;
+					type = 0;
+					index = i;
+				}
+				if (((((current_delta = delta_two_edge_exchange(solution, distance_matrix, size, i, j)) < best_delta) && (tabu_matrix[solution[i]][solution[j]] == 0)) || ((1) && (tabu_matrix[solution[i]][solution[j]] != 0) && ((current_fitness + current_delta) < best_fitness - 0.001))) && (abs(i - j) != 1) )
+				{
+					if ((tabu_matrix[solution[i]][solution[j]] != 0) && ((current_fitness + current_delta) < best_fitness - 0.001))
+                                                add_to_tabu = 0;
+                                        else
+                                                add_to_tabu = 1;
+					
+					best_delta = current_delta;
+                                        best_i = i;
+                                        best_j = j;
+                                        type = 1;
+					index = i;
+				}
 			}
 		}
+
 		
 
 		gettimeofday(&timecheck, NULL);
@@ -269,67 +260,69 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 		time_micro_total = end_micro - start_micro;
 		//printf("First time in micro_sec: %ld\n", time_micro_total);
 
-		reduce_tenure(tabu_matrix, candidate_moves, size, candidates);
-                if (index != -1)
+
+		//TODO: Create tabu list instead of candidate_moves
+		reduce_tenure(tabu_matrix, tabu_list, size, candidates);
+                
+		if (index != -1)
 		{
+
+			
+			if (best_i > best_j)
+			{	
+				int temp = best_i;
+				best_i = best_j;
+				best_j = temp;
+			}
+
 			if (type == 0)
 			{
-				if (best_i > best_j)
-				{
-					int temp = best_i;
-					best_i = best_j;
-					best_j = temp;
-				}
-				tabu_matrix[(int) candidate_moves[index][0]][(int) candidate_moves[index][1]] = tabu_tenure;
+				tabu_matrix[solution[best_i]][solution[best_j]] = tabu_tenure;
 				swap(&solution[best_i], &solution[best_j]);
 			}
 			else if (type == 1)
 			{
-
-				if (best_i > best_j)
-				{
-					int temp = best_i;
-					best_i = best_j;
-					best_j = temp;
-				}
-				//printf("XDDDDDDDDDDDDDDDDDDD\n");
-				tabu_matrix[(int) candidate_moves[index][0]][(int) candidate_moves[index][1]] = tabu_tenure;
-
+				tabu_matrix[solution[best_i]][solution[best_j]] = tabu_tenure;
 				reverse_route(&solution[best_i+1], &solution[best_j]);
 			}
 
 			current_fitness += best_delta;
-			if (best_fitness - current_fitness > 0.001)
+			if (current_fitness < best_fitness)
 			{
-
-				//printf("%lf / %lf / %lf; i: %d; j: %d type: %d; best delta: %lf; tabu size: %d; candidate size: %d\n", current_fitness, best_fitness, current_fitness - best_fitness, best_i, best_j, type, best_delta, tabu_tenure, candidates);
 				best_fitness = current_fitness;
 				copy_solution(best_solution, solution, size);
 				last_upgrade = counter;
+				//printf("Upgrade was made at: %d (%lf)\n", last_upgrade, best_fitness);
 				//printf("XDDDD; Fitness: %lf\n", best_fitness);
 			}
-
-			best_among_candidates = best_delta;
+			
+			if (add_to_tabu)
+			{
+				tabu_list[tabu_rotation % candidates][0] = solution[best_i];
+				tabu_list[tabu_rotation % candidates][1] = solution[best_j];
+				tabu_rotation++;
+				tabu_matrix[solution[best_i]][solution[best_j]] = tabu_tenure;
+			}
+			else
+			{
+				//printf("Aspiration was made\n");
+			}
 		}
 		else
 		{
 			int a = 0;
 			//printf("WTF");
-			//recreate_candidate_moves(candidate_moves, distance_matrix, candidate_matrix, solution, candidates, size);
 		}
+
 		
 		//printf("Counter: %d; Fitness: %lf (%lf); index: %d best delta: %lf\n", counter, fitness(solution, distance_matrix, size), current_fitness, index, best_delta);	
 		
-		recreate_tabu_dict(tabu_dict, solution, size);
+		//TODO: Check if necessary
 		
-		if (counter % tenure == 0)
-			recreate_candidate_moves(candidate_moves, distance_matrix, candidate_matrix, solution, candidates, size);
+		
 		if (counter - last_upgrade > max_no_upgrades)
-		{
-			//printf("%d\n", max_no_upgrades);
-			//printf("Counter: %d, last upgrade: %d\n", counter, last_upgrade);
 			break;
-		}	
+	
 
 		
 		gettimeofday(&timecheck, NULL);
@@ -349,6 +342,42 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 	return;
 }
 
+int **create_tabu_list(int size)
+{
+	int **tabu_list;
+        int i, j;
+
+        tabu_list = (int **)malloc(sizeof(int *) * size);
+
+        for (i = 0; i < size; i++)
+        {
+                tabu_list[i] = (int *)malloc(sizeof(int) * 2);
+		tabu_list[i][0] = 0;
+        }
+
+
+        return tabu_list;
+}
+
+void reduce_tenure(int **tabu_matrix, int **tabu_list, int size, int tabu_size)
+{
+        
+        int i;
+
+        for (i = 0; i < tabu_size; i++)
+        {
+                if ( tabu_matrix[tabu_list[i][0]][tabu_list[i][1]] != 0 )
+                {
+                        tabu_matrix[tabu_list[i][0]][tabu_list[i][1]] -= 1;
+                }
+        }
+
+
+
+        return;
+}
+
+/* OLD
 void reduce_tenure(int **tabu_matrix, double **candidate_moves, int size, int candidates)
 {
 	
@@ -366,7 +395,7 @@ void reduce_tenure(int **tabu_matrix, double **candidate_moves, int size, int ca
 
 	return;
 }
-
+*/
 
 void recreate_tabu_dict(int **tabu_dict, int *solution, int size)
 {

@@ -72,9 +72,9 @@ int main(int argc, char *argv[])
 
 		char *file_path = argv[i];
 		double **coordinates_cities_array = coordinates_cities(file_path, &size, &flag);
-		double alphas[] = {0.80, 0.95};
-	        double acceptance_rates[] = {0.95};
-        	int markov_length[] = {size*0.02, size*0.2};
+		double alphas[] = {0.92};
+	        double acceptance_rates[] = {0.97};
+        	int markov_length[] = {size*0.08};
 
 	
 	        int size_alphas = sizeof(alphas) / sizeof(double);
@@ -202,7 +202,7 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
 
 		if (t < 0.1 || counter - last_amelioration > 100)
 			break;
-		
+			
 
 		if (counter == 2)
 		{
@@ -268,6 +268,8 @@ void steepest_local_search(double **distance_matrix, int *solution, int size, lo
 	*iterations_done = counter; // count_evaluations
 	*evaluations_done = count_evaluations;
 	
+	printf("Total steps: %ld; Total Evaluations: %ld\n", *iterations_done, *evaluations_done);
+
 	double best_solution_found = fitness(solution, distance_matrix, size);
 
 
