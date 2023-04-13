@@ -21,7 +21,8 @@ void recreate_candidate_moves(double **candidate_list, double **distance_matrix,
 void tabu_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done, int tenure, int candidats);
 void experiment_one_instance(char *file_name, int iterations, int *tenure, int *candidates_sizes, int size_tenures, int size_candidates);
 int **create_tabu_list(int size);
-
+int calculate_non_zero(int **matrix, int size);
+void reset_matrix(int **matrix, int size);
 
 int main(int argc, char *argv[])
 {
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
 
                 char *file_path = argv[i];
                 double **coordinates_cities_array = coordinates_cities(file_path, &size, &flag);
-                int tenures[] = {size/2, size, size*2};
+                int tenures[] = {size/2, size, size*2, size*4, size*8};
                 int candidate_sizes[] = {size/10};
 
 
@@ -202,7 +203,7 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 	int add_to_tabu = 0;
 	int tabu_rotation = 0;
 	int last_upgrade = 0;
-	int max_no_upgrades = size * 10;
+	int max_no_upgrades = size * 2;
 	while (1)
 	{
 
@@ -335,12 +336,49 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 	*evaluations_done = count_evaluations;
 	
 	copy_solution(solution, best_solution, size);
+	
+	int total = calculate_non_zero(tabu_matrix, size);
+	printf("TOTAL: %d\n", total);
 
 	double best_solution_found = fitness(solution, distance_matrix, size);
 
 
 	return;
 }
+
+void reset_matrix(int **matrix, int size)
+{
+        int i, j;
+
+        for (i = 0; i < size-1; i++)
+        {
+                for (j = i + 1; j < size; j++)
+                {
+                        matrix[i][j] = 0;
+                }
+        }
+
+        return;
+}
+
+
+int calculate_non_zero(int **matrix, int size)
+{
+        int total = 0;
+        int i, j;
+
+        for (i = 0; i < size-1; i++)
+        {
+                for (j = i + 1; j < size; j++)
+                {
+                        if (matrix[i][j] > 0)
+                                total++;
+                }
+        }
+
+        return total;
+}
+
 
 int **create_tabu_list(int size)
 {

@@ -20,6 +20,8 @@ void prepare_candidate_moves(double **candidate_moves, int candidates);
 void recreate_candidate_moves(double **candidate_list, double **distance_matrix, double **candidate_matrix, int *solution, int candidates, int size);
 void tabu_search(double **distance_matrix, int *solution, int size, long *iterations_done, long *evaluations_done, int tenure, int candidats);
 void experiment_one_instance(char *file_name, int iterations, int *tenure, int *candidates_sizes, int size_tenures, int size_candidates);
+int calculate_non_zero(int **matrix, int size);
+void reset_matrix(int **matrix, int size);
 
 int main(int argc, char *argv[])
 {
@@ -323,7 +325,11 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 		recreate_tabu_dict(tabu_dict, solution, size);
 		
 		if (counter % tenure == 0)
+		{
+			reset_matrix(tabu_matrix, size);
 			recreate_candidate_moves(candidate_moves, distance_matrix, candidate_matrix, solution, candidates, size);
+		}
+
 		if (counter - last_upgrade > max_no_upgrades)
 		{
 			//printf("%d\n", max_no_upgrades);
@@ -341,6 +347,9 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 	*iterations_done = counter; // count_evaluations
 	*evaluations_done = count_evaluations;
 	
+
+	int total = calculate_non_zero(tabu_matrix, size);
+	printf("TOTAL: %d\n", total);
 	copy_solution(solution, best_solution, size);
 
 	double best_solution_found = fitness(solution, distance_matrix, size);
@@ -348,6 +357,39 @@ void tabu_search(double **distance_matrix, int *solution, int size, long *iterat
 
 	return;
 }
+void reset_matrix(int **matrix, int size)
+{
+	int i, j;
+
+	for (i = 0; i < size-1; i++)
+        {
+                for (j = i + 1; j < size; j++)
+                {
+			matrix[i][j] = 0;
+                }
+        }
+
+	return;
+}
+
+
+int calculate_non_zero(int **matrix, int size)
+{
+	int total = 0;
+	int i, j;
+
+	for (i = 0; i < size-1; i++)
+	{
+		for (j = i + 1; j < size; j++)
+		{
+			if (matrix[i][j] > 0)
+				total++;
+		}
+	}
+
+	return total;
+}
+
 
 void reduce_tenure(int **tabu_matrix, double **candidate_moves, int size, int candidates)
 {
